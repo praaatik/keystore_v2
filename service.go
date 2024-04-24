@@ -32,10 +32,28 @@ func initializeTransactionLog() error {
 		case e, ok = <-events:
 			switch e.EventType {
 			case EventDelete:
+				fmt.Println("Got a DELETE event with the event -> ")
+				fmt.Print(e)
+
 				err = Delete(e.Key)
 				count++
 			case EventPut:
+				fmt.Println("Got a PUT event with the event -> ")
+				fmt.Print(e)
+
 				err = Put(e.Key, e.Value)
+				count++
+			case EventGet:
+				fmt.Println("Got a GET event with the event -> ")
+				fmt.Print(e)
+
+				_, err = Get(e.Key)
+				count++
+			case EventHealthCheck:
+				fmt.Println("Got a HEALTHCHECK event with the event -> ")
+				fmt.Print(e)
+
+				HealthCheck()
 				count++
 			}
 		}
@@ -48,7 +66,12 @@ func initializeTransactionLog() error {
 
 func healthcheckHandler(w http.ResponseWriter, r *http.Request) {
 	transact.WriteHealthcheck()
-	fmt.Fprintln(w, "Healthcheck works...")
+	if HealthCheck() {
+		fmt.Fprintln(w, "Healthcheck works.")
+		return
+	}
+	fmt.Fprintln(w, "System issue, healthcheck not working.")
+	return
 }
 
 func keyValuePutHandler(w http.ResponseWriter, r *http.Request) {

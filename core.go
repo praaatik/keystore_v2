@@ -43,3 +43,7 @@ func Delete(key string) error {
 	delete(store.m, key)
 	return nil
 }
+
+func HealthCheck() bool {
+	return true
+}
